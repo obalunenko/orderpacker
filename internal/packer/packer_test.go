@@ -41,7 +41,7 @@ func TestPacker_PackOrder(t *testing.T) {
 		{
 			name: "12001  - 2x5000, 1x2000, 1x250",
 			args: args{
-				items: 1,
+				items: 12001,
 			},
 			want: []uint{5000, 5000, 2000, 250},
 		},

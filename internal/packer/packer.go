@@ -50,12 +50,6 @@ func (p Packer) PackOrder(items uint) []uint {
 	for i := len(p.boxes) - 1; i >= 0; i-- {
 		box := p.boxes[i]
 
-		/*nextBox := box
-
-		if i > 0 {
-			nextBox = p.boxes[i-1]
-		}*/
-
 		if box > items {
 			if i == 0 {
 				result = append(result, box)
@@ -67,6 +61,12 @@ func (p Packer) PackOrder(items uint) []uint {
 		}
 
 		if box <= items {
+			if i == 0 {
+				result = append(result, p.boxes[i+1])
+
+				break
+			}
+
 			n := items / box
 
 			if n == 0 {
