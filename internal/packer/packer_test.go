@@ -66,16 +66,3 @@ func compareSlices(t *testing.T, expected, actual []uint) {
 
 	assert.Equal(t, string(bexp), string(bact))
 }
-
-func TestDiv(t *testing.T) {
-	var (
-		a uint = 10
-		b uint = 3
-	)
-
-	c := a / b
-	d := a % b
-
-	t.Logf("%d / %d = %d", a, b, c)
-	t.Logf("%d %% %d = %d", a, b, d)
-}

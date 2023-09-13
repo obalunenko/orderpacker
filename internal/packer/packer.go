@@ -27,17 +27,17 @@ func WithDefaultBoxes() PackerOption {
 }
 
 func NewPacker(opts ...PackerOption) *Packer {
-	p := &Packer{}
+	var p Packer
 
 	if len(opts) == 0 {
 		opts = []PackerOption{WithDefaultBoxes()}
 	}
 
 	for _, opt := range opts {
-		opt(p)
+		opt(&p)
 	}
 
-	return p
+	return &p
 }
 
 func (p Packer) PackOrder(items uint) []uint {
