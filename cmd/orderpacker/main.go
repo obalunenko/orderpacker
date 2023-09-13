@@ -3,29 +3,41 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	log "log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
+
+	"github.com/obalunenko/orderpacker/internal/packer"
+	"github.com/obalunenko/orderpacker/internal/service"
 )
 
 func main() {
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
-	defer cancel()
+	signals := make(chan os.Signal, 1)
 
-	mux := http.NewServeMux()
+	ctx, cancel := context.WithCancelCause(context.Background())
+	defer cancel(nil)
 
-	mux.Handle("/", handler())
+	signal.Notify(signals, os.Interrupt, os.Kill)
+
+	go func() {
+		s := <-signals
+
+		cancel(fmt.Errorf("received signal: %s", s.String()))
+	}()
 
 	port := "8080"
+
+	r := service.NewRouter(packer.NewPacker(packer.WithDefaultBoxes()))
 
 	log.Info("Starting server", "port", port)
 
 	server := &http.Server{
 		Addr:                         net.JoinHostPort("", port),
-		Handler:                      mux,
+		Handler:                      r,
 		DisableGeneralOptionsHandler: false,
 		TLSConfig:                    nil,
 		ReadTimeout:                  0,
@@ -56,7 +68,7 @@ func main() {
 	go func() {
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error("Error starting server", "error", err)
-			cancel()
+			cancel(err)
 		}
 	}()
 
@@ -68,15 +80,5 @@ func main() {
 
 	wg.Wait()
 
-	log.Info("Exit", "signal", ctx.Err())
-}
-
-func handler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Info("Request received", "method", r.Method, "url", r.URL)
-		_, err := w.Write([]byte("Hello World"))
-		if err != nil {
-			http.Error(w, "internal error", http.StatusInternalServerError)
-		}
-	})
+	log.Info("Exit", "cause", context.Cause(ctx))
 }

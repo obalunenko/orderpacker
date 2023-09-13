@@ -1,10 +1,10 @@
 package packer
 
 type Packer struct {
-	Boxes []int
+	boxes []uint
 }
 
-var boxes = []int{
+var defaultBoxes = []uint{
 	250,
 	500,
 	1000,
@@ -12,16 +12,82 @@ var boxes = []int{
 	5000,
 }
 
-func NewPacker(boxes []int) *Packer {
-	return &Packer{Boxes: boxes}
-}
+type PackerOption func(*Packer)
 
-func NewDefaultPacker() *Packer {
-	return &Packer{Boxes: boxes}
-}
-
-func (p Packer) PackOrder(items int) []int {
-	return []int{
-		items,
+func WithBoxes(boxes []uint) PackerOption {
+	return func(p *Packer) {
+		p.boxes = boxes
 	}
+}
+
+func WithDefaultBoxes() PackerOption {
+	return func(p *Packer) {
+		p.boxes = defaultBoxes
+	}
+}
+
+func NewPacker(opts ...PackerOption) *Packer {
+	p := &Packer{}
+
+	if len(opts) == 0 {
+		opts = []PackerOption{WithDefaultBoxes()}
+	}
+
+	for _, opt := range opts {
+		opt(p)
+	}
+
+	return p
+}
+
+func (p Packer) PackOrder(items uint) []uint {
+	if items == 0 {
+		return []uint{}
+	}
+
+	var result []uint
+
+	for i := len(p.boxes) - 1; i >= 0; i-- {
+		box := p.boxes[i]
+
+		/*nextBox := box
+
+		if i > 0 {
+			nextBox = p.boxes[i-1]
+		}*/
+
+		if box > items {
+			if i == 0 {
+				result = append(result, box)
+
+				break
+			}
+
+			continue
+		}
+
+		if box <= items {
+			n := items / box
+
+			if n == 0 {
+				result = append(result, box)
+
+				break
+			}
+
+			for j := uint(0); j < n; j++ {
+				result = append(result, box)
+			}
+
+			left := items % box
+
+			if left == 0 {
+				break
+			}
+
+			items = left
+		}
+	}
+
+	return result
 }

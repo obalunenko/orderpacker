@@ -7,6 +7,8 @@ SCRIPT_NAME="$(basename "$0")"
 echo "${SCRIPT_NAME} is running... "
 
 
+go install golang.org/x/tools/cmd/goimports@latest
+
 echo "Making filelist"
 FILES=($(find . -type f -name "*.go" -not -path "./vendor/*" -not -path "./.git/*"))
 

@@ -42,3 +42,15 @@ docker-build:
 	@docker build -t $(APP_NAME) .
 	@echo "Done"
 .PHONY: docker-build
+
+docker-run:
+	@echo "Running docker image..."
+	@docker compose -f compose.yaml up --detach --build
+	@echo "Done"
+.PHONY: docker-run
+
+docker-stop:
+	@echo "Stopping docker image..."
+	@docker compose -f compose.yaml down
+	@echo "Done"
+.PHONY: docker-stop
