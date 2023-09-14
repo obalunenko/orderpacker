@@ -1,10 +1,15 @@
 package packer
 
+import (
+	"fmt"
+	"slices"
+)
+
 type Packer struct {
 	boxes []uint
 }
 
-var defaultBoxes = []uint{
+var DefaultBoxes = []uint{
 	250,
 	500,
 	1000,
@@ -16,17 +21,39 @@ type PackerOption func(*Packer)
 
 func WithBoxes(boxes []uint) PackerOption {
 	return func(p *Packer) {
-		p.boxes = boxes
+		slices.Sort(boxes)
+
+		unique := make(map[uint]struct{}, len(boxes))
+
+		isUnique := func(x uint) bool {
+			if _, exist := unique[x]; !exist {
+				unique[x] = struct{}{}
+
+				return true
+			}
+
+			return false
+		}
+
+		filtered := boxes[:0]
+
+		for _, b := range boxes {
+			if isUnique(b) {
+				filtered = append(filtered, b)
+			}
+		}
+
+		p.boxes = filtered
 	}
 }
 
 func WithDefaultBoxes() PackerOption {
 	return func(p *Packer) {
-		p.boxes = defaultBoxes
+		p.boxes = DefaultBoxes
 	}
 }
 
-func NewPacker(opts ...PackerOption) *Packer {
+func NewPacker(opts ...PackerOption) (*Packer, error) {
 	var p Packer
 
 	if len(opts) == 0 {
@@ -37,7 +64,11 @@ func NewPacker(opts ...PackerOption) *Packer {
 		opt(&p)
 	}
 
-	return &p
+	if len(p.boxes) == 0 {
+		return nil, fmt.Errorf("boxes list is empty")
+	}
+
+	return &p, nil
 }
 
 func (p Packer) PackOrder(items uint) []uint {

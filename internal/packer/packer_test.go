@@ -48,7 +48,8 @@ func TestPacker_PackOrder(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := NewPacker(WithDefaultBoxes())
+			p, err := NewPacker(WithDefaultBoxes())
+			require.NoError(t, err)
 
 			got := p.PackOrder(tt.args.items)
 
@@ -65,4 +66,59 @@ func compareSlices(t *testing.T, expected, actual []uint) {
 	require.NoError(t, err)
 
 	assert.Equal(t, string(bexp), string(bact))
+}
+
+func TestNewPacker(t *testing.T) {
+	type args struct {
+		opts []PackerOption
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *Packer
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "default boxes",
+			args: args{
+				opts: []PackerOption{},
+			},
+			want: &Packer{
+				boxes: DefaultBoxes,
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "custom boxes",
+			args: args{
+				opts: []PackerOption{
+					WithBoxes([]uint{32, 1, 2, 2, 4, 16, 8, 16}),
+				},
+			},
+			want: &Packer{
+				boxes: []uint{1, 2, 4, 8, 16, 32},
+			},
+			wantErr: assert.NoError,
+		},
+		{
+			name: "custom boxes empty - error",
+			args: args{
+				opts: []PackerOption{
+					WithBoxes([]uint{}),
+				},
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := NewPacker(tt.args.opts...)
+			if !tt.wantErr(t, err) {
+				return
+			}
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
