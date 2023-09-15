@@ -84,6 +84,17 @@ func TestPacker_PackOrder(t *testing.T) {
 			},
 			want: []uint{3, 3, 3},
 		},
+
+		{
+			name: "custom[1,2,4]. 7 - 4, 2, 1?",
+			fields: fields{
+				boxes: []uint{1, 2, 4},
+			},
+			args: args{
+				items: 7,
+			},
+			want: []uint{4, 2, 1},
+		},
 	}
 
 	for _, tt := range tests {
@@ -146,6 +157,16 @@ func TestNewPacker(t *testing.T) {
 			args: args{
 				opts: []PackerOption{
 					WithBoxes([]uint{}),
+				},
+			},
+			want:    nil,
+			wantErr: assert.Error,
+		},
+		{
+			name: "custom boxes contains zero - error",
+			args: args{
+				opts: []PackerOption{
+					WithBoxes([]uint{9, 0, 2}),
 				},
 			},
 			want:    nil,
