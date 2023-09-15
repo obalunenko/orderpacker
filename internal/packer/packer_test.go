@@ -64,7 +64,7 @@ func TestPacker_PackOrder(t *testing.T) {
 			want: []uint{5000, 5000, 2000, 250},
 		},
 		{
-			name: "custom. 1 - 1",
+			name: "custom[1, 2, 4, 8]. 1 - 1",
 			fields: fields{
 				boxes: []uint{1, 2, 4, 8},
 			},
@@ -72,6 +72,17 @@ func TestPacker_PackOrder(t *testing.T) {
 				items: 1,
 			},
 			want: []uint{1},
+		},
+
+		{
+			name: "custom[3]. 7 - 3 3 3",
+			fields: fields{
+				boxes: []uint{3},
+			},
+			args: args{
+				items: 7,
+			},
+			want: []uint{3, 3, 3},
 		},
 	}
 
