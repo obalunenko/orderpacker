@@ -1,8 +1,11 @@
 services:
   server:
-    build:
-      context: .
-      target: final
+    image: ${APP_NAME}:latest
+    environment:
+        PORT: 8080
+        ORDERPACKER_CONFIG_PATH: ${ORDERPACKER_CONFIG_PATH:-/configs/config.yaml}
     ports:
       - 8080:8080
+    volumes:
+        - ./configs:/configs
 
