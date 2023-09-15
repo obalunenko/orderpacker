@@ -65,13 +65,33 @@ func NewPacker(opts ...PackerOption) (*Packer, error) {
 		opt(&p)
 	}
 
-	if len(p.boxes) == 0 {
-		return nil, fmt.Errorf("boxes list is empty")
+	if err := p.validate(); err != nil {
+		return nil, fmt.Errorf("failed to validate packer: %w", err)
 	}
 
 	log.Info("Packer created", "boxes", p.boxes)
 
 	return &p, nil
+}
+
+func (p Packer) Boxes() []uint {
+	return p.boxes
+}
+
+func (p Packer) validate() error {
+	if len(p.boxes) == 0 {
+		return fmt.Errorf("boxes list is empty")
+	}
+
+	// There should be no box with zero volume.
+	for _, box := range p.boxes {
+		if box == 0 {
+			return fmt.Errorf("box with zero volume")
+		}
+	}
+
+	return nil
+
 }
 
 func (p Packer) PackOrder(items uint) []uint {
