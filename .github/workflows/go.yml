@@ -56,6 +56,16 @@ jobs:
           make build
         shell: bash
 
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          install-only: true
+
+      - name: Check release config
+        run: |
+          make check-releaser
+        shell: bash
+
   testing:
     strategy:
       fail-fast: false
@@ -84,3 +94,5 @@ jobs:
         run: |
           make test
         shell: bash
+
+

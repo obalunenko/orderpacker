@@ -65,3 +65,23 @@ docker-stop:
 	@docker compose -f compose.yaml down
 	@echo "Done"
 .PHONY: docker-stop
+
+## Release
+release:
+	./scripts/release/release.sh
+.PHONY: release
+
+## Release local snapshot
+release-local-snapshot:
+	./scripts/release/local-snapshot-release.sh
+.PHONY: release-local-snapshot
+
+## Check goreleaser config.
+check-releaser:
+	./scripts/release/check.sh
+.PHONY: check-releaser
+
+## Issue new release.
+new-version: vet test build
+	./scripts/release/new-version.sh
+.PHONY: new-release
