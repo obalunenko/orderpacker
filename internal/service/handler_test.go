@@ -37,12 +37,12 @@ func Test_toAPIResponse(t *testing.T) {
 			want: PackResponse{
 				Packs: []Pack{
 					{
-						Box:      500,
-						Quantity: 2,
-					},
-					{
 						Box:      2000,
 						Quantity: 1,
+					},
+					{
+						Box:      500,
+						Quantity: 2,
 					},
 				},
 			},
