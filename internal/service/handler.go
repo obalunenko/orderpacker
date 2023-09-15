@@ -5,6 +5,7 @@ import (
 	"io"
 	log "log/slog"
 	"net/http"
+	"sort"
 
 	"github.com/obalunenko/orderpacker/internal/packer"
 )
@@ -86,6 +87,10 @@ func toAPIResponse(boxes []uint) PackResponse {
 			Quantity: v,
 		})
 	}
+
+	sort.Slice(resp.Packs, func(i, j int) bool {
+		return resp.Packs[i].Box > resp.Packs[j].Box
+	})
 
 	return resp
 }
