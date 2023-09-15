@@ -6,5 +6,9 @@
     "boxes": [
       1,2,4,8,16,32
     ]
+  },
+  "log": {
+    "level": "info",
+    "format": "json"
   }
 }
