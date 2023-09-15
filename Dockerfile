@@ -2,8 +2,6 @@ ARG GO_VERSION=1.21
 FROM golang:${GO_VERSION}-alpine AS build
 WORKDIR /src
 
-COPY . .
-
 ARG APK_BASH_VERSION=~5
 ARG APK_GIT_VERSION=~2
 ARG APK_MAKE_VERSION=~4
@@ -13,17 +11,20 @@ RUN apk add --no-cache \
     "bash=${APK_BASH_VERSION}" \
 	"git=${APK_GIT_VERSION}" \
 	"make=${APK_MAKE_VERSION}" \
-	"build-base=${APK_BUILDBASE_VERSION}"
+	"build-base=${APK_BUILDBASE_VERSION}" \
+
+COPY . .
 
 RUN make build
 
-FROM alpine:latest AS final
+FROM alpine:3.18 AS final
 
-RUN apk --update add \
-        ca-certificates \
-        tzdata \
-        && \
-        update-ca-certificates
+ARG APK_CA_CERTIFICATES_VERSION=~20230506
+
+# Install any runtime dependencies that are needed to run your application.
+# Leverage a cache mount to /var/cache/apk/ to speed up subsequent builds.
+RUN apk add --no-cache \
+        "ca-certificates=${APK_CA_CERTIFICATES_VERSION}"
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
