@@ -4,7 +4,16 @@ WORKDIR /src
 
 COPY . .
 
-RUN apk add --no-cache make git
+ARG APK_BASH_VERSION=~5
+ARG APK_GIT_VERSION=~2
+ARG APK_MAKE_VERSION=~4
+ARG APK_BUILDBASE_VERSION=~0
+
+RUN apk add --no-cache \
+    "bash=${APK_BASH_VERSION}" \
+	"git=${APK_GIT_VERSION}" \
+	"make=${APK_MAKE_VERSION}" \
+	"build-base=${APK_BUILDBASE_VERSION}"
 
 RUN make build
 

@@ -5,19 +5,11 @@
 # https://docs.docker.com/engine/reference/builder/#dockerignore-file
 
 **/.DS_Store
-**/.classpath
 **/.dockerignore
 **/.env
-**/.git
 **/.gitignore
-**/.project
-**/.settings
-**/.toolstarget
 **/.vs
 **/.vscode
-**/*.*proj.user
-**/*.dbmdl
-**/*.jfm
 **/bin
 **/charts
 **/docker-compose*
