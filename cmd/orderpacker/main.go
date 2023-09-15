@@ -25,6 +25,8 @@ const (
 var errSignal = errors.New("received signal")
 
 func main() {
+	printVersion()
+
 	signals := make(chan os.Signal, 1)
 
 	ctx, cancel := context.WithCancelCause(context.Background())
