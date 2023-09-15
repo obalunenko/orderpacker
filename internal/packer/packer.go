@@ -2,6 +2,7 @@ package packer
 
 import (
 	"fmt"
+	log "log/slog"
 	"slices"
 )
 
@@ -68,6 +69,8 @@ func NewPacker(opts ...PackerOption) (*Packer, error) {
 		return nil, fmt.Errorf("boxes list is empty")
 	}
 
+	log.Info("Packer created", "boxes", p.boxes)
+
 	return &p, nil
 }
 
@@ -81,7 +84,7 @@ func (p Packer) PackOrder(items uint) []uint {
 	for i := len(p.boxes) - 1; i >= 0; i-- {
 		box := p.boxes[i]
 
-		if box > items {
+		if box >= items {
 			if i == 0 {
 				result = append(result, box)
 
@@ -91,7 +94,7 @@ func (p Packer) PackOrder(items uint) []uint {
 			continue
 		}
 
-		if box <= items {
+		if box < items {
 			if i == 0 {
 				result = append(result, p.boxes[i+1])
 
