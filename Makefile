@@ -1,4 +1,9 @@
-APP_NAME := "orderpacker"
+APP_NAME?="orderpacker"
+SHELL := env APP_NAME=$(APP_NAME) $(SHELL)
+
+BIN_DIR ?= "./bin"
+SHELL := env BIN_DIR=$(BIN_DIR) $(SHELL)
+
 
 format-code: fmt goimports
 .PHONY: format-code
@@ -27,9 +32,15 @@ test:
 
 build:
 	@echo "Building..."
-	@go build -o bin/$(APP_NAME) -v ./cmd/$(APP_NAME)
+	@go build -o ${BIN_DIR}/$(APP_NAME) -v ./cmd/$(APP_NAME)
 	@echo "Done"
 .PHONY: build
+
+run:
+	@echo "Running..."
+	@${BIN_DIR}/$(APP_NAME)
+	@echo "Done"
+.PHONY: run
 
 vendor:
 	@echo "Vendoring..."
@@ -39,13 +50,13 @@ vendor:
 
 docker-build:
 	@echo "Building docker image..."
-	@docker build -t $(APP_NAME) .
+	@docker build -t $(APP_NAME):latest .
 	@echo "Done"
 .PHONY: docker-build
 
 docker-run:
 	@echo "Running docker image..."
-	@docker compose -f compose.yaml up --detach --build
+	@docker compose -f compose.yaml up --detach
 	@echo "Done"
 .PHONY: docker-run
 
