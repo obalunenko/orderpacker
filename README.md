@@ -1,5 +1,5 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/obalunenko/orderpacker)
-[![Latest release artifacts](https://img.shields.io/github/v/release/obalunenko/instadiff-cli)](https://github.com/obalunenko/instadiff-cli/releases/latest)
+[![Latest release artifacts](https://img.shields.io/github/v/release/obalunenko/orderpacker)](https://github.com/obalunenko/orderpacker/releases/latest)
 [![Go [lint, test]](https://github.com/obalunenko/orderpacker/actions/workflows/go.yml/badge.svg)](https://github.com/obalunenko/orderpacker/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/obalunenko/orderpacker)](https://goreportcard.com/report/github.com/obalunenko/orderpacker)
 
