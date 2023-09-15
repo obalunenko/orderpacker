@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	configPathEnv = "ORDERPACKER_CONFIG"
+	configPathEnv = "ORDERPACKER_CONFIG_PATH"
 )
 
 var errSignal = errors.New("received signal")
