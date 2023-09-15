@@ -65,8 +65,8 @@ func NewPacker(opts ...PackerOption) (*Packer, error) {
 		opt(&p)
 	}
 
-	if len(p.boxes) == 0 {
-		return nil, fmt.Errorf("boxes list is empty")
+	if err := p.validate(); err != nil {
+		return nil, fmt.Errorf("failed to validate packer: %w", err)
 	}
 
 	log.Info("Packer created", "boxes", p.boxes)
@@ -74,12 +74,56 @@ func NewPacker(opts ...PackerOption) (*Packer, error) {
 	return &p, nil
 }
 
+func (p Packer) validate() error {
+	if len(p.boxes) == 0 {
+		return fmt.Errorf("boxes list is empty")
+	}
+
+	// There should be no box with zero volume.
+	for _, box := range p.boxes {
+		if box == 0 {
+			return fmt.Errorf("box with zero volume")
+		}
+	}
+
+	return nil
+
+}
+
 func (p Packer) PackOrder(items uint) []uint {
 	if items == 0 {
 		return []uint{}
 	}
 
-	var result []uint
+	if p.boxes[0] == 0 {
+		// This should never happen, cause we validate boxes on creation.
+		panic(fmt.Errorf("packer has box with zero volume: boxes [%v]", p.boxes))
+	}
+
+	// Preallocate memory for the result slice.
+	// Make a prediction based on the number of items and the smallest box.
+	result := make([]uint, 0, items/p.boxes[0])
+
+	if len(p.boxes) == 1 {
+		box := p.boxes[0]
+
+		if items < box {
+			return []uint{box}
+		}
+
+		n := items / box
+
+		last := items % box
+		if last != 0 {
+			n++
+		}
+
+		for i := uint(0); i < n; i++ {
+			result = append(result, box)
+		}
+
+		return result
+	}
 
 	for i := len(p.boxes) - 1; i >= 0; i-- {
 		box := p.boxes[i]
