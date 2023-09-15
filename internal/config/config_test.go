@@ -29,6 +29,10 @@ func TestLoad(t *testing.T) {
 				Pack: packConfig{
 					Boxes: []uint{1, 2, 4, 8, 16, 32},
 				},
+				Log: logConfig{
+					Level:  "info",
+					Format: "json",
+				},
 			},
 			wantErr: assert.NoError,
 		},
@@ -43,6 +47,10 @@ func TestLoad(t *testing.T) {
 				},
 				Pack: packConfig{
 					Boxes: []uint{1, 2, 4, 8, 16, 32},
+				},
+				Log: logConfig{
+					Level:  "info",
+					Format: "json",
 				},
 			},
 			wantErr: assert.NoError,

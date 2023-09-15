@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 
 	"github.com/obalunenko/getenv"
@@ -91,6 +92,8 @@ func main() {
 		cfg = config.DefaultConfig()
 	}
 
+	setLogger(cfg)
+
 	port := cfg.HTTP.Port
 
 	p, err := packer.NewPacker(packer.WithBoxes(cfg.Pack.Boxes))
@@ -147,4 +150,52 @@ func main() {
 	}
 
 	wg.Wait()
+}
+
+func setLogger(cfg *config.Config) {
+	var level log.Leveler
+
+	switch strings.ToLower(cfg.Log.Level) {
+	case "debug":
+		level = log.LevelDebug
+	case "info":
+		level = log.LevelInfo
+	case "warn":
+		level = log.LevelWarn
+	case "error":
+		level = log.LevelError
+	default:
+		log.Warn("Unknown log level, info will be used", "level", cfg.Log.Level)
+
+		level = log.LevelInfo
+	}
+
+	var handler log.Handler
+
+	switch strings.ToLower(cfg.Log.Format) {
+	case "json":
+		handler = log.NewJSONHandler(os.Stdout, &log.HandlerOptions{
+			AddSource:   false,
+			Level:       level,
+			ReplaceAttr: nil,
+		})
+	case "text":
+		handler = log.NewTextHandler(os.Stdout, &log.HandlerOptions{
+			AddSource:   false,
+			Level:       level,
+			ReplaceAttr: nil,
+		})
+	default:
+		log.Warn("Unknown log format, text will be used", "format", cfg.Log.Format)
+
+		handler = log.NewTextHandler(os.Stdout, &log.HandlerOptions{
+			AddSource:   false,
+			Level:       level,
+			ReplaceAttr: nil,
+		})
+	}
+
+	log.SetDefault(log.New(handler))
+
+	log.Info("Logger set", "level", level, "format", cfg.Log.Format)
 }

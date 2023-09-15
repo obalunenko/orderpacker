@@ -1,5 +1,8 @@
 http:
   port: 8080
+log:
+  level: info
+  format: json
 pack:
   boxes:
     - 1
