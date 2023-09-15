@@ -69,6 +69,10 @@ The configuration file is a JSON file with the following structure:
     "boxes": [
       1,2,4,8,16,32
     ]
+  },
+  "log": {
+    "level": "info",
+    "format": "json"
   }
 }
 ```
@@ -78,13 +82,17 @@ YAML configuration file is also supported.
 ```yaml 
 http:
   port: 8080
+log:
+  level: info
+  format: json
 pack:
-  - 1
-  - 2
-  - 4
-  - 8
-  - 16
-  - 32
+  boxes:
+    - 1
+    - 2
+    - 4
+    - 8
+    - 16
+    - 32
 ```
 
 

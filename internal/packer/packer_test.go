@@ -9,46 +9,75 @@ import (
 )
 
 func TestPacker_PackOrder(t *testing.T) {
+	type fields struct {
+		boxes []uint
+	}
+
 	type args struct {
 		items uint
 	}
+
 	tests := []struct {
-		name string
-		args args
-		want []uint
+		name   string
+		fields fields
+		args   args
+		want   []uint
 	}{
 		{
-			name: "1 - 1x250",
+			name: "default. 1 - 1x250",
+			fields: fields{
+				boxes: DefaultBoxes,
+			},
 			args: args{
 				items: 1,
 			},
 			want: []uint{250},
 		},
 		{
-			name: "251 - 1x500",
+			name: "default. 251 - 1x500",
+			fields: fields{
+				boxes: DefaultBoxes,
+			},
 			args: args{
 				items: 251,
 			},
 			want: []uint{500},
 		},
 		{
-			name: "501 - 1x500, 1x250",
+			name: "default. 501 - 1x500, 1x250",
+			fields: fields{
+				boxes: DefaultBoxes,
+			},
 			args: args{
 				items: 501,
 			},
 			want: []uint{500, 250},
 		},
 		{
-			name: "12001  - 2x5000, 1x2000, 1x250",
+			name: "default. 12001  - 2x5000, 1x2000, 1x250",
+			fields: fields{
+				boxes: DefaultBoxes,
+			},
 			args: args{
 				items: 12001,
 			},
 			want: []uint{5000, 5000, 2000, 250},
 		},
+		{
+			name: "custom. 1 - 1",
+			fields: fields{
+				boxes: []uint{1, 2, 4, 8},
+			},
+			args: args{
+				items: 1,
+			},
+			want: []uint{1},
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p, err := NewPacker(WithDefaultBoxes())
+			p, err := NewPacker(WithBoxes(tt.fields.boxes))
 			require.NoError(t, err)
 
 			got := p.PackOrder(tt.args.items)
@@ -72,6 +101,7 @@ func TestNewPacker(t *testing.T) {
 	type args struct {
 		opts []PackerOption
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -111,6 +141,7 @@ func TestNewPacker(t *testing.T) {
 			wantErr: assert.Error,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewPacker(tt.args.opts...)

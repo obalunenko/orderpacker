@@ -22,9 +22,15 @@ type packConfig struct {
 	Boxes []uint `yaml:"boxes" json:"boxes"`
 }
 
+type logConfig struct {
+	Level  string `yaml:"level" json:"level"`
+	Format string `yaml:"format" json:"format"`
+}
+
 type Config struct {
 	HTTP httpConfig `yaml:"http" json:"http"`
 	Pack packConfig `yaml:"pack" json:"pack"`
+	Log  logConfig  `yaml:"log" json:"log"`
 }
 
 func DefaultConfig() *Config {
@@ -34,6 +40,10 @@ func DefaultConfig() *Config {
 		},
 		Pack: packConfig{
 			Boxes: packer.DefaultBoxes,
+		},
+		Log: logConfig{
+			Level:  "INFO",
+			Format: "text",
 		},
 	}
 }
