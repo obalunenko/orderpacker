@@ -52,7 +52,7 @@ docker-build:
 
 docker-run:
 	@echo "Running docker image..."
-	@docker compose -f compose.yaml up --detach
+	@docker compose -f compose.yaml up
 	@echo "Done"
 .PHONY: docker-run
 
