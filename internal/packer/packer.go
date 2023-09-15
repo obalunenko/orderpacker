@@ -95,16 +95,17 @@ func (p Packer) PackOrder(items uint) []uint {
 		return []uint{}
 	}
 
+	if p.boxes[0] == 0 {
+		// This should never happen, cause we validate boxes on creation.
+		panic(fmt.Errorf("packer has box with zero volume: boxes [%v]", p.boxes))
+	}
+
 	// Preallocate memory for the result slice.
 	// Make a prediction based on the number of items and the smallest box.
-	result := make([]uint, 0, items/p.boxes[len(p.boxes)-1])
+	result := make([]uint, 0, items/p.boxes[0])
 
 	if len(p.boxes) == 1 {
 		box := p.boxes[0]
-		if box == 0 {
-			// This should never happen, cause we validate boxes on creation.
-			panic(fmt.Errorf("packer has box with zero volume: boxes [%v]", p.boxes))
-		}
 
 		if items < box {
 			return []uint{box}
@@ -126,10 +127,6 @@ func (p Packer) PackOrder(items uint) []uint {
 
 	for i := len(p.boxes) - 1; i >= 0; i-- {
 		box := p.boxes[i]
-		if box == 0 {
-			// This should never happen, cause we validate boxes on creation.
-			panic(fmt.Errorf("packer has box with zero volume: boxes [%v]", p.boxes))
-		}
 
 		if box >= items {
 			if i == 0 {
