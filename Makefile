@@ -1,21 +1,17 @@
-APP_NAME?="orderpacker"
+APP_NAME?=orderpacker
 SHELL := env APP_NAME=$(APP_NAME) $(SHELL)
-
-BIN_DIR ?= "./bin"
-SHELL := env BIN_DIR=$(BIN_DIR) $(SHELL)
-
 
 format-code: fmt goimports
 .PHONY: format-code
 
 fmt:
 	@echo "Formatting code..."
-	./scripts/fmt.sh
+	./scripts/style/fmt.sh
 .PHONY: fmt
 
 goimports:
 	@echo "Formatting code..."
-	./scripts/fix-imports.sh
+	./scripts/style/fix-imports.sh
 .PHONY: goimports
 
 vet:
@@ -32,7 +28,7 @@ test:
 
 build:
 	@echo "Building..."
-	@go build -o ${BIN_DIR}/$(APP_NAME) -v ./cmd/$(APP_NAME)
+	@./scripts/build/app.sh
 	@echo "Done"
 .PHONY: build
 
@@ -65,3 +61,23 @@ docker-stop:
 	@docker compose -f compose.yaml down
 	@echo "Done"
 .PHONY: docker-stop
+
+## Release
+release:
+	./scripts/release/release.sh
+.PHONY: release
+
+## Release local snapshot
+release-local-snapshot:
+	./scripts/release/local-snapshot-release.sh
+.PHONY: release-local-snapshot
+
+## Check goreleaser config.
+check-releaser:
+	./scripts/release/check.sh
+.PHONY: check-releaser
+
+## Issue new release.
+new-version: vet test build
+	./scripts/release/new-version.sh
+.PHONY: new-release
