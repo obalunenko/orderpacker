@@ -11,7 +11,7 @@ RUN apk add --no-cache \
     "bash=${APK_BASH_VERSION}" \
 	"git=${APK_GIT_VERSION}" \
 	"make=${APK_MAKE_VERSION}" \
-	"build-base=${APK_BUILDBASE_VERSION}" \
+	"build-base=${APK_BUILDBASE_VERSION}"
 
 COPY . .
 
@@ -21,8 +21,6 @@ FROM alpine:3.18 AS final
 
 ARG APK_CA_CERTIFICATES_VERSION=~20230506
 
-# Install any runtime dependencies that are needed to run your application.
-# Leverage a cache mount to /var/cache/apk/ to speed up subsequent builds.
 RUN apk add --no-cache \
         "ca-certificates=${APK_CA_CERTIFICATES_VERSION}"
 
@@ -39,11 +37,10 @@ RUN adduser \
     appuser
 USER appuser
 
-# Copy the executable from the "build" stage.
 COPY --from=build /src/bin/orderpacker /bin/
 
-# Expose the port that the application listens on.
+
 EXPOSE 8080
 
-# What the container should run when it is started.
+
 ENTRYPOINT [ "/bin/orderpacker" ]
