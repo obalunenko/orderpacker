@@ -54,9 +54,7 @@ func PackHandler(p *packer.Packer) http.Handler {
 
 		order := p.PackOrder(req.Items)
 
-		resp := PackResponse{
-			Boxes: order,
-		}
+		resp := toAPIResponse(order)
 
 		b, err = json.Marshal(resp)
 		if err != nil {
@@ -72,4 +70,22 @@ func PackHandler(p *packer.Packer) http.Handler {
 			return
 		}
 	})
+}
+
+func toAPIResponse(boxes []uint) PackResponse {
+	var resp PackResponse
+
+	orderMap := make(map[uint]uint)
+	for i := range boxes {
+		orderMap[boxes[i]]++
+	}
+
+	for k, v := range orderMap {
+		resp.Packs = append(resp.Packs, Pack{
+			Box:      k,
+			Quantity: v,
+		})
+	}
+
+	return resp
 }
