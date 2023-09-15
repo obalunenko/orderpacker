@@ -1,21 +1,17 @@
-APP_NAME?="orderpacker"
+APP_NAME?=orderpacker
 SHELL := env APP_NAME=$(APP_NAME) $(SHELL)
-
-BIN_DIR ?= "./bin"
-SHELL := env BIN_DIR=$(BIN_DIR) $(SHELL)
-
 
 format-code: fmt goimports
 .PHONY: format-code
 
 fmt:
 	@echo "Formatting code..."
-	./scripts/fmt.sh
+	./scripts/style/fmt.sh
 .PHONY: fmt
 
 goimports:
 	@echo "Formatting code..."
-	./scripts/fix-imports.sh
+	./scripts/style/fix-imports.sh
 .PHONY: goimports
 
 vet:
@@ -32,7 +28,7 @@ test:
 
 build:
 	@echo "Building..."
-	@go build -o ${BIN_DIR}/$(APP_NAME) -v ./cmd/$(APP_NAME)
+	@./scripts/build/app.sh
 	@echo "Done"
 .PHONY: build
 
