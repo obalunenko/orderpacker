@@ -1,6 +1,7 @@
 package packer
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
 
@@ -99,10 +100,10 @@ func TestPacker_PackOrder(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p, err := NewPacker(WithBoxes(tt.fields.boxes))
+			p, err := NewPacker(context.Background(), WithBoxes(tt.fields.boxes))
 			require.NoError(t, err)
 
-			got := p.PackOrder(tt.args.items)
+			got := p.PackOrder(context.Background(), tt.args.items)
 
 			compareSlices(t, tt.want, got)
 		})
@@ -176,7 +177,7 @@ func TestNewPacker(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewPacker(tt.args.opts...)
+			got, err := NewPacker(context.Background(), tt.args.opts...)
 			if !tt.wantErr(t, err) {
 				return
 			}
