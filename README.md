@@ -38,12 +38,12 @@ The application responds with a JSON payload with the following structure:
 }
 ```
 
-It primarily runs on `localhost` port `8080` and acts upon `GET` requests to the `/pack` endpoint.
+It primarily runs on `localhost` port `8080` and acts upon `POST` requests to the `/pack` endpoint.
 
 Below is a Curl command snippet demonstrating how to call this endpoint
 
 ```bash
-curl --location --request GET 'localhost:8080/pack' \
+curl --location --request POST 'localhost:8080/pack' \
 --header 'Content-Type: application/json' \
 --data '{
     "items": 501

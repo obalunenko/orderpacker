@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="app">
+    <form id="packForm" onsubmit="event.preventDefault(); packOrder();">
+        <h2>Pack Order Form</h2>
+        <label for="items">Items:</label><br>
+        <input type="number" id="items" name="items" min="1" required><br><br>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<script>
+    async function packOrder() {
+        let items = document.getElementById('items').value;
+        items = parseInt(items);
+
+        // Ensure items is a non-negative integer
+        if (!Number.isInteger(items) || items < 0) {
+            alert('Items should be a positive integer');
+            return;
+        }
+
+        let packRequest = {
+            items: items
+        };
+
+        const response = await fetch('/pack', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(packRequest),
+        });
+
+        var resultsDiv = document.getElementById('app');
+        resultsDiv.innerHTML = ''; // clear form
+
+        if (response.ok) {
+            let result = await response.json();
+            console.log(result);
+            displayResults(result, resultsDiv); // Call new function to display results
+            createResetButton(resultsDiv); // Creates the 'Pack new order' button
+        } else {
+            console.error('HTTP-Error: ' + response.status);
+            resultsDiv.innerHTML = '<p>Unable to process the request.</p>';
+        }
+
+        function displayResults(result, resultsDiv) {
+            result.packs.forEach((pack) => {
+                let packPara = document.createElement('p');
+                packPara.textContent = `Box: ${pack.box}, Quantity: ${pack.quantity}`;
+                resultsDiv.appendChild(packPara);
+            });
+        }
+
+        function createResetButton(parentDiv) {
+            const btn = document.createElement("button");
+            btn.innerHTML = "Pack new order";
+            btn.onclick = reset;
+            parentDiv.appendChild(btn);
+        }
+
+        function reset() {
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
