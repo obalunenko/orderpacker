@@ -112,13 +112,11 @@ func main() {
 		return
 	}
 
-	r := service.NewRouter(p)
-
 	log.WithField(ctx, "port", port).Info("Starting server")
 
 	server := &http.Server{
 		Addr:    net.JoinHostPort("", port),
-		Handler: r,
+		Handler: service.NewRouter(p),
 	}
 
 	var wg sync.WaitGroup
@@ -135,6 +133,8 @@ func main() {
 	})
 
 	go func() {
+		log.WithField(ctx, "addr", server.Addr).Info("Server started")
+
 		if err = server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			cancel(fmt.Errorf("failed to start server: %w", err))
 		}

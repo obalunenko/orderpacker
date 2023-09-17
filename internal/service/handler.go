@@ -2,32 +2,68 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
+	"html/template"
 	"io"
-	log "log/slog"
 	"net/http"
 	"sort"
 
+	log "github.com/obalunenko/logger"
+
 	"github.com/obalunenko/orderpacker/internal/packer"
+	"github.com/obalunenko/orderpacker/internal/service/assets"
 )
 
 func NewRouter(p *packer.Packer) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	handler := PackHandler(p)
-	handler = logRequestMiddleware(handler)
-	handler = logResponseMiddleware(handler)
-	handler = requestIDMiddleware(handler)
-	handler = recoverMiddleware(handler)
-	handler = loggerMiddleware(handler)
+	mw := []func(http.Handler) http.Handler{
+		logRequestMiddleware,
+		logResponseMiddleware,
+		requestIDMiddleware,
+		recoverMiddleware,
+		loggerMiddleware,
+	}
 
-	mux.Handle("/pack", handler)
+	mwApply := func(h http.Handler) http.Handler {
+		for i := range mw {
+			h = mw[i](h)
+		}
+
+		return h
+	}
+
+	mux.Handle("/", mwApply(indexHandler()))
+	mux.Handle("/pack", mwApply(packHandler(p)))
+	mux.Handle("/favicon.ico", mwApply(faviconHandler()))
 
 	return mux
 }
 
-func PackHandler(p *packer.Packer) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
+func indexHandler() http.HandlerFunc {
+	homePageHTML := string(assets.MustLoad("index.gohtml"))
+	homePageTmpl := template.Must(template.New("index").Parse(homePageHTML))
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+
+		if err := homePageTmpl.Execute(w, nil); err != nil {
+			http.Error(w, "failed to execute template", http.StatusInternalServerError)
+
+			return
+		}
+	}
+}
+
+func faviconHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+func packHandler(p *packer.Packer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 
 			return
@@ -42,19 +78,28 @@ func PackHandler(p *packer.Packer) http.Handler {
 
 		defer func() {
 			if err = r.Body.Close(); err != nil {
-				log.Error("Error closing request body", "error", err)
+				log.WithError(r.Context(), err).Error("Error closing request body")
 			}
 		}()
 
 		var req PackRequest
 
 		if err = json.Unmarshal(b, &req); err != nil {
+			log.WithError(r.Context(), err).Error("Error unmarshalling request body")
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 
 			return
 		}
 
-		order := p.PackOrder(r.Context(), req.Items)
+		items, err := fromAPIRequest(req)
+		if err != nil {
+			log.WithError(r.Context(), err).Error("Invalid request body")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+
+			return
+		}
+
+		order := p.PackOrder(r.Context(), items)
 
 		resp := toAPIResponse(order)
 
@@ -71,7 +116,18 @@ func PackHandler(p *packer.Packer) http.Handler {
 
 			return
 		}
-	})
+	}
+}
+
+// ErrEmptyItems is returned when items is zero or empty.
+var ErrEmptyItems = errors.New("empty items")
+
+func fromAPIRequest(req PackRequest) (uint, error) {
+	if req.Items == 0 {
+		return 0, ErrEmptyItems
+	}
+
+	return req.Items, nil
 }
 
 func toAPIResponse(boxes []uint) PackResponse {
