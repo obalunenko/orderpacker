@@ -96,10 +96,9 @@ func main() {
 	}
 
 	l = log.Init(ctx, log.Params{
-		Writer:     os.Stderr,
-		Level:      cfg.Log.Level,
-		Format:     cfg.Log.Format,
-		WithSource: false,
+		Writer: os.Stderr,
+		Level:  cfg.Log.Level,
+		Format: cfg.Log.Format,
 	})
 
 	ctx = log.ContextWithLogger(ctx, l)
@@ -118,20 +117,8 @@ func main() {
 	log.WithField(ctx, "port", port).Info("Starting server")
 
 	server := &http.Server{
-		Addr:                         net.JoinHostPort("", port),
-		Handler:                      r,
-		DisableGeneralOptionsHandler: false,
-		TLSConfig:                    nil,
-		ReadTimeout:                  0,
-		ReadHeaderTimeout:            0,
-		WriteTimeout:                 0,
-		IdleTimeout:                  0,
-		MaxHeaderBytes:               0,
-		TLSNextProto:                 nil,
-		ConnState:                    nil,
-		ErrorLog:                     nil,
-		BaseContext:                  nil,
-		ConnContext:                  nil,
+		Addr:    net.JoinHostPort("", port),
+		Handler: r,
 	}
 
 	var wg sync.WaitGroup
