@@ -11,6 +11,18 @@ OrderPacker is a Golang based application that calculates the number of packs ne
 
 ## How does OrderPacker work?
 
+### Frontend
+The OrderPacker service also provides a user-friendly frontend, from which the aforementioned API can be conveniently accessed and tested. 
+You can reach the frontend from your browser at:
+
+`http://localhost:8080`
+
+The frontend itself is quite minimalistic - it contains an input field for submitting the number of items to be packed, 
+and upon submission, it presents neatly formatted API responses. 
+The responses are conveniently displayed, showing each pack and the corresponding quantity.
+
+### API
+
 The application exposes its functionality through an HTTP API and accepts a JSON payload with the following structure:
 
 ```json
