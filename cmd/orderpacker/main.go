@@ -4,15 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	log "log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 
 	"github.com/obalunenko/getenv"
+	log "github.com/obalunenko/logger"
 
 	"github.com/obalunenko/orderpacker/internal/config"
 	"github.com/obalunenko/orderpacker/internal/packer"
@@ -30,7 +29,11 @@ func main() {
 
 	signals := make(chan os.Signal, 1)
 
-	ctx, cancel := context.WithCancelCause(context.Background())
+	l := log.FromContext(context.Background())
+
+	ctx := log.ContextWithLogger(context.Background(), l)
+
+	ctx, cancel := context.WithCancelCause(ctx)
 	defer func() {
 		const msg = "Exit"
 
@@ -41,7 +44,7 @@ func main() {
 			code = 1
 		}
 
-		l := log.With("cause", err)
+		l := log.WithField(ctx, "cause", err)
 
 		if code == 0 {
 			l.Info(msg)
@@ -69,7 +72,7 @@ func main() {
 	cfgPath, err := getenv.Env[string](configPathEnv)
 	if err != nil {
 		if errors.Is(err, getenv.ErrNotSet) {
-			log.Warn("Config path env not set", "env", configPathEnv)
+			log.WithField(ctx, "env", configPathEnv).Warn("Config path env not set")
 
 			useDefaultConfig = true
 		}
@@ -78,7 +81,7 @@ func main() {
 	var cfg *config.Config
 
 	if !useDefaultConfig {
-		log.Info("Using config", "path", cfgPath)
+		log.WithField(ctx, "path", cfgPath).Info("Using config")
 
 		cfg, err = config.Load(cfgPath)
 		if err != nil {
@@ -87,16 +90,22 @@ func main() {
 			return
 		}
 	} else {
-		log.Warn("Using default config")
+		log.Warn(ctx, "Using default config")
 
 		cfg = config.DefaultConfig()
 	}
 
-	setLogger(cfg)
+	l = log.Init(ctx, log.Params{
+		Writer: os.Stderr,
+		Level:  cfg.Log.Level,
+		Format: cfg.Log.Format,
+	})
+
+	ctx = log.ContextWithLogger(ctx, l)
 
 	port := cfg.HTTP.Port
 
-	p, err := packer.NewPacker(packer.WithBoxes(cfg.Pack.Boxes))
+	p, err := packer.NewPacker(ctx, packer.WithBoxes(cfg.Pack.Boxes))
 	if err != nil {
 		cancel(fmt.Errorf("failed to create packer: %w", err))
 
@@ -105,23 +114,11 @@ func main() {
 
 	r := service.NewRouter(p)
 
-	log.Info("Starting server", "port", port)
+	log.WithField(ctx, "port", port).Info("Starting server")
 
 	server := &http.Server{
-		Addr:                         net.JoinHostPort("", port),
-		Handler:                      r,
-		DisableGeneralOptionsHandler: false,
-		TLSConfig:                    nil,
-		ReadTimeout:                  0,
-		ReadHeaderTimeout:            0,
-		WriteTimeout:                 0,
-		IdleTimeout:                  0,
-		MaxHeaderBytes:               0,
-		TLSNextProto:                 nil,
-		ConnState:                    nil,
-		ErrorLog:                     nil,
-		BaseContext:                  nil,
-		ConnContext:                  nil,
+		Addr:    net.JoinHostPort("", port),
+		Handler: r,
 	}
 
 	var wg sync.WaitGroup
@@ -130,11 +127,11 @@ func main() {
 
 	server.RegisterOnShutdown(func() {
 		defer wg.Done()
-		log.Info("Server shutting down")
+		log.Info(ctx, "Server shutting down")
 
 		server.SetKeepAlivesEnabled(false)
 
-		log.Info("Server shutdown complete")
+		log.Info(ctx, "Server shutdown complete")
 	})
 
 	go func() {
@@ -146,56 +143,8 @@ func main() {
 	<-ctx.Done()
 
 	if err = server.Shutdown(ctx); err != nil {
-		log.Error("Error shutting down server", "error", err)
+		log.WithError(ctx, err).Error("Error shutting down server")
 	}
 
 	wg.Wait()
-}
-
-func setLogger(cfg *config.Config) {
-	var level log.Leveler
-
-	switch strings.ToLower(cfg.Log.Level) {
-	case "debug":
-		level = log.LevelDebug
-	case "info":
-		level = log.LevelInfo
-	case "warn":
-		level = log.LevelWarn
-	case "error":
-		level = log.LevelError
-	default:
-		log.Warn("Unknown log level, info will be used", "level", cfg.Log.Level)
-
-		level = log.LevelInfo
-	}
-
-	var handler log.Handler
-
-	switch strings.ToLower(cfg.Log.Format) {
-	case "json":
-		handler = log.NewJSONHandler(os.Stdout, &log.HandlerOptions{
-			AddSource:   false,
-			Level:       level,
-			ReplaceAttr: nil,
-		})
-	case "text":
-		handler = log.NewTextHandler(os.Stdout, &log.HandlerOptions{
-			AddSource:   false,
-			Level:       level,
-			ReplaceAttr: nil,
-		})
-	default:
-		log.Warn("Unknown log format, text will be used", "format", cfg.Log.Format)
-
-		handler = log.NewTextHandler(os.Stdout, &log.HandlerOptions{
-			AddSource:   false,
-			Level:       level,
-			ReplaceAttr: nil,
-		})
-	}
-
-	log.SetDefault(log.New(handler))
-
-	log.Info("Logger set", "level", level, "format", cfg.Log.Format)
 }

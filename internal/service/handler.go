@@ -18,6 +18,7 @@ func NewRouter(p *packer.Packer) *http.ServeMux {
 	handler = logResponseMiddleware(handler)
 	handler = requestIDMiddleware(handler)
 	handler = recoverMiddleware(handler)
+	handler = loggerMiddleware(handler)
 
 	mux.Handle("/pack", handler)
 
@@ -53,7 +54,7 @@ func PackHandler(p *packer.Packer) http.Handler {
 			return
 		}
 
-		order := p.PackOrder(req.Items)
+		order := p.PackOrder(r.Context(), req.Items)
 
 		resp := toAPIResponse(order)
 
