@@ -2,17 +2,33 @@ package service
 
 import (
 	"context"
-	log "log/slog"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
+	log "github.com/obalunenko/logger"
 )
 
+func loggerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		l := log.FromContext(r.Context())
+
+		ctx := log.ContextWithLogger(r.Context(), l)
+
+		r = r.WithContext(ctx)
+
+		next.ServeHTTP(w, r)
+	})
+}
 func logRequestMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		rid := r.Context().Value(requestIDKey{}).(string)
+		ctx := r.Context()
 
-		log.Info("Request", "method", r.Method, "url", r.URL.String(), "request_id", rid)
+		log.WithFields(ctx, log.Fields{
+			"method": r.Method,
+			"url":    r.URL.String(),
+		}).Info("Request received")
 
 		next.ServeHTTP(w, r)
 	})
@@ -20,13 +36,19 @@ func logRequestMiddleware(next http.Handler) http.Handler {
 
 func logResponseMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		now := time.Now()
+
+		ctx := r.Context()
+
 		rw := newResponseWriter(w)
 
 		next.ServeHTTP(rw, r)
 
-		rid := r.Context().Value(requestIDKey{}).(string)
-
-		log.Info("Response", "status", rw.status, "request_id", rid)
+		log.WithFields(ctx, log.Fields{
+			"method":  r.Method,
+			"url":     r.URL.String(),
+			"latency": time.Since(now).String(),
+		}).Info("Response sent")
 	})
 }
 
@@ -46,6 +68,11 @@ func requestIDMiddleware(next http.Handler) http.Handler {
 		ctx := r.Context()
 
 		ctx = context.WithValue(ctx, requestIDKey{}, rid)
+
+		l := log.FromContext(r.Context())
+		l = l.WithField("request_id", rid)
+
+		ctx = log.ContextWithLogger(r.Context(), l)
 
 		w.Header().Set("X-Request-ID", rid)
 
@@ -83,7 +110,7 @@ func recoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Error("Panic recovered", "error", err)
+				log.WithError(r.Context(), fmt.Errorf(fmt.Sprint(err))).Error("Panic recovered")
 			}
 		}()
 

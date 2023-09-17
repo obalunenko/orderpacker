@@ -80,18 +80,18 @@ func Load(path string) (*Config, error) {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
-	var unmarhalFn func([]byte, interface{}) error
+	var unmarshalFn func([]byte, interface{}) error
 
 	switch filepath.Ext(path) {
 	case ".json":
-		unmarhalFn = json.Unmarshal
+		unmarshalFn = json.Unmarshal
 	case ".yaml", ".yml":
-		unmarhalFn = yaml.Unmarshal
+		unmarshalFn = yaml.Unmarshal
 	default:
 		return nil, fmt.Errorf("unsupported config file extension: %s", filepath.Ext(path))
 	}
 
-	if err = unmarhalFn(b, &cfg); err != nil {
+	if err = unmarshalFn(b, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config file: %w", err)
 	}
 

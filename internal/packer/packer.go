@@ -1,9 +1,11 @@
 package packer
 
 import (
+	"context"
 	"fmt"
-	log "log/slog"
 	"slices"
+
+	log "github.com/obalunenko/logger"
 )
 
 type Packer struct {
@@ -54,7 +56,7 @@ func WithDefaultBoxes() PackerOption {
 	}
 }
 
-func NewPacker(opts ...PackerOption) (*Packer, error) {
+func NewPacker(ctx context.Context, opts ...PackerOption) (*Packer, error) {
 	var p Packer
 
 	if len(opts) == 0 {
@@ -69,7 +71,7 @@ func NewPacker(opts ...PackerOption) (*Packer, error) {
 		return nil, fmt.Errorf("failed to validate packer: %w", err)
 	}
 
-	log.Info("Packer created", "boxes", p.boxes)
+	log.WithField(ctx, "boxes", p.boxes).Info("Packer created")
 
 	return &p, nil
 }
@@ -90,7 +92,12 @@ func (p Packer) validate() error {
 
 }
 
-func (p Packer) PackOrder(items uint) []uint {
+func (p Packer) PackOrder(ctx context.Context, items uint) []uint {
+	log.WithFields(ctx, log.Fields{
+		"items": items,
+		"boxes": p.boxes,
+	}).Debug("Packing order")
+
 	if items == 0 {
 		return []uint{}
 	}
