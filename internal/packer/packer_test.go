@@ -7,9 +7,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/obalunenko/orderpacker/internal/testlogger"
 )
 
 func TestPacker_PackOrder(t *testing.T) {
+	ctx := testlogger.New(context.Background())
+
 	type fields struct {
 		boxes []uint
 	}
@@ -100,10 +104,10 @@ func TestPacker_PackOrder(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p, err := NewPacker(context.Background(), WithBoxes(tt.fields.boxes))
+			p, err := NewPacker(ctx, WithBoxes(tt.fields.boxes))
 			require.NoError(t, err)
 
-			got := p.PackOrder(context.Background(), tt.args.items)
+			got := p.PackOrder(ctx, tt.args.items)
 
 			compareSlices(t, tt.want, got)
 		})
@@ -121,6 +125,8 @@ func compareSlices(t *testing.T, expected, actual []uint) {
 }
 
 func TestNewPacker(t *testing.T) {
+	ctx := testlogger.New(context.Background())
+
 	type args struct {
 		opts []PackerOption
 	}
@@ -177,7 +183,7 @@ func TestNewPacker(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewPacker(context.Background(), tt.args.opts...)
+			got, err := NewPacker(ctx, tt.args.opts...)
 			if !tt.wantErr(t, err) {
 				return
 			}

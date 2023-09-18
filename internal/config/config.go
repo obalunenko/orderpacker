@@ -1,21 +1,27 @@
 package config
 
 import (
-	"encoding/json"
+	"context"
 	"errors"
-	"fmt"
-	"io"
-	log "log/slog"
-	"os"
-	"path/filepath"
 
-	"gopkg.in/yaml.v3"
+	"github.com/obalunenko/getenv"
+	"github.com/obalunenko/getenv/option"
+	log "github.com/obalunenko/logger"
 
 	"github.com/obalunenko/orderpacker/internal/packer"
 )
 
+const (
+	portEnv   = "PORT"
+	hostEnv   = "HOST"
+	boxesEnv  = "PACK_BOXES"
+	levelEnv  = "LOG_LEVEL"
+	formatEnv = "LOG_FORMAT"
+)
+
 type httpConfig struct {
 	Port string `yaml:"port" json:"port"`
+	Host string `yaml:"host" json:"host"`
 }
 
 type packConfig struct {
@@ -37,6 +43,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		HTTP: httpConfig{
 			Port: "8080",
+			Host: "0.0.0.0",
 		},
 		Pack: packConfig{
 			Boxes: packer.DefaultBoxes,
@@ -48,52 +55,73 @@ func DefaultConfig() *Config {
 	}
 }
 
-var (
-	ErrEmptyPath = errors.New("empty path")
-	ErrNotExists = errors.New("config file not found")
-)
+func Load(ctx context.Context) (*Config, error) {
+	return loadFromEnv(ctx)
+}
 
-func Load(path string) (*Config, error) {
-	if path == "" {
-		return nil, ErrEmptyPath
-	}
-
-	f, err := os.Open(path)
+func loadEnv[T string | []uint](ctx context.Context, key string, defaultVal T, opts ...option.Option) (T, error) {
+	val, err := getenv.Env[T](key, opts...)
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return nil, fmt.Errorf("%w: %s", ErrNotExists, path)
+		if !errors.Is(err, getenv.ErrNotSet) {
+			return val, err
 		}
 
-		return nil, fmt.Errorf("failed to open config file: %w", err)
+		log.WithFields(ctx, log.Fields{
+			"env":     key,
+			"default": defaultVal,
+		}).Warn("Env not set - using default")
+
+		val = defaultVal
 	}
 
-	defer func() {
-		if err = f.Close(); err != nil {
-			log.Error("Error closing config file", "error", err)
-		}
-	}()
+	return val, nil
+}
 
-	var cfg Config
+func loadFromEnv(ctx context.Context) (*Config, error) {
+	var errs error
 
-	b, err := io.ReadAll(f)
+	dflt := DefaultConfig()
+
+	port, err := loadEnv[string](ctx, portEnv, dflt.HTTP.Port)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+		errs = errors.Join(errs, err)
 	}
 
-	var unmarshalFn func([]byte, interface{}) error
-
-	switch filepath.Ext(path) {
-	case ".json":
-		unmarshalFn = json.Unmarshal
-	case ".yaml", ".yml":
-		unmarshalFn = yaml.Unmarshal
-	default:
-		return nil, fmt.Errorf("unsupported config file extension: %s", filepath.Ext(path))
+	host, err := loadEnv[string](ctx, hostEnv, dflt.HTTP.Host)
+	if err != nil {
+		errs = errors.Join(errs, err)
 	}
 
-	if err = unmarshalFn(b, &cfg); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal config file: %w", err)
+	boxes, err := loadEnv[[]uint](ctx, boxesEnv, dflt.Pack.Boxes, option.WithSeparator(","))
+	if err != nil {
+		errs = errors.Join(errs, err)
 	}
 
-	return &cfg, nil
+	level, err := loadEnv[string](ctx, levelEnv, dflt.Log.Level)
+	if err != nil {
+		errs = errors.Join(errs, err)
+	}
+
+	format, err := loadEnv[string](ctx, formatEnv, dflt.Log.Format)
+	if err != nil {
+		errs = errors.Join(errs, err)
+	}
+
+	if errs != nil {
+		return nil, errs
+	}
+
+	return &Config{
+		HTTP: httpConfig{
+			Port: port,
+			Host: host,
+		},
+		Pack: packConfig{
+			Boxes: boxes,
+		},
+		Log: logConfig{
+			Level:  level,
+			Format: format,
+		},
+	}, nil
 }
