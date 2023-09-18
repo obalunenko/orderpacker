@@ -16,6 +16,7 @@ import (
 
 type httpConfig struct {
 	Port string `yaml:"port" json:"port"`
+	Host string `yaml:"host" json:"host"`
 }
 
 type packConfig struct {
@@ -37,6 +38,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		HTTP: httpConfig{
 			Port: "8080",
+			Host: "0.0.0.0",
 		},
 		Pack: packConfig{
 			Boxes: packer.DefaultBoxes,

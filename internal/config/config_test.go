@@ -25,6 +25,7 @@ func TestLoad(t *testing.T) {
 			want: &Config{
 				HTTP: httpConfig{
 					Port: "8080",
+					Host: "0.0.0.0",
 				},
 				Pack: packConfig{
 					Boxes: []uint{1, 2, 4, 8, 16, 32},
@@ -44,6 +45,7 @@ func TestLoad(t *testing.T) {
 			want: &Config{
 				HTTP: httpConfig{
 					Port: "8080",
+					Host: "0.0.0.0",
 				},
 				Pack: packConfig{
 					Boxes: []uint{1, 2, 4, 8, 16, 32},

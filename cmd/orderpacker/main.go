@@ -104,6 +104,7 @@ func main() {
 	ctx = log.ContextWithLogger(ctx, l)
 
 	port := cfg.HTTP.Port
+	host := cfg.HTTP.Host
 
 	p, err := packer.NewPacker(ctx, packer.WithBoxes(cfg.Pack.Boxes))
 	if err != nil {
@@ -112,10 +113,13 @@ func main() {
 		return
 	}
 
-	log.WithField(ctx, "port", port).Info("Starting server")
+	log.WithFields(ctx, log.Fields{
+		"host": host,
+		"port": port,
+	}).Info("Starting server")
 
 	server := &http.Server{
-		Addr:    net.JoinHostPort("", port),
+		Addr:    net.JoinHostPort(host, port),
 		Handler: service.NewRouter(p),
 	}
 
