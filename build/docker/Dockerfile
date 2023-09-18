@@ -13,7 +13,7 @@ RUN apk add --no-cache \
 	"make=${APK_MAKE_VERSION}" \
 	"build-base=${APK_BUILDBASE_VERSION}"
 
-COPY . .
+COPY ../.. .
 
 RUN make build
 
@@ -40,7 +40,13 @@ USER appuser
 COPY --from=build /src/bin/orderpacker /bin/
 
 
-EXPOSE 8080
+ENV PORT=8080
+EXPOSE ${PORT}
+
+ENV HOST="0.0.0.0"
+ENV LOG_LEVEL="info"
+ENV LOG_FORMAT="text"
+ENV PACK_BOXES=""
 
 
 ENTRYPOINT [ "/bin/orderpacker" ]
