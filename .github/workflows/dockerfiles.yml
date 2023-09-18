@@ -11,6 +11,7 @@ on:
     paths:
       - "!**"
       - "build/docker/**"
+      - "Dockerfile"
       - "!build/docker/**.sh"
       - ".github/workflows/dockerfiles.yml"
 
@@ -22,7 +23,7 @@ jobs:
       matrix:
         dockerfile:
           [
-            "./build/docker/Dockerfile",
+            "./Dockerfile",
           ]
     runs-on: "ubuntu-22.04"
     name: Lint ${{ matrix.dockerfile }}
