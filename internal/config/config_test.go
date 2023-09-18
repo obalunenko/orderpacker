@@ -2,12 +2,12 @@ package config
 
 import (
 	"context"
-	io "io"
 	"testing"
 
-	log "github.com/obalunenko/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/obalunenko/orderpacker/internal/testlogger"
 )
 
 func unsetEnv(tb testing.TB) {
@@ -20,23 +20,8 @@ func unsetEnv(tb testing.TB) {
 	tb.Setenv(formatEnv, "")
 }
 
-type noopCloser struct {
-	io.Writer
-}
-
-func (noopCloser) Close() error {
-	return nil
-}
-
 func TestLoadDefault(t *testing.T) {
-	ctx := context.Background()
-
-	// Disable logging.
-	l := log.Init(ctx, log.Params{
-		Writer: noopCloser{Writer: io.Discard},
-	})
-
-	ctx = log.ContextWithLogger(ctx, l)
+	ctx := testlogger.New(context.Background())
 
 	unsetEnv(t)
 

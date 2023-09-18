@@ -107,6 +107,12 @@ To run the tests, use the following command:
 make test
 ```
 
+To run tests without logs, use the following command:
+
+```bash
+TEST_DISCARD_LOGS=true make test
+```
+
 ### Linting
 
 To run the linter, use the following command:

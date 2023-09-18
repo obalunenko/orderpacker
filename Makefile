@@ -1,6 +1,9 @@
 APP_NAME?=orderpacker
 SHELL := env APP_NAME=$(APP_NAME) $(SHELL)
 
+TEST_DISCARD_LOG?=false
+SHELL := env TEST_DISCARD_LOG=$(TEST_DISCARD_LOG) $(SHELL)
+
 format-code: fmt goimports
 .PHONY: format-code
 
