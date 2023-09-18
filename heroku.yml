@@ -1,3 +1,7 @@
 build:
   docker:
-    web: build/docker/Dockerfile
+    service: build/docker/Dockerfile
+
+run:
+  web:
+    image: service
