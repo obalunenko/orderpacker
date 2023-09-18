@@ -49,7 +49,7 @@ vendor:
 
 docker-build:
 	@echo "Building docker image..."
-	@docker build -t $(APP_NAME):latest -f ./build/docker/Dockerfile .
+	@docker build -t $(APP_NAME):latest -f Dockerfile .
 	@echo "Done"
 .PHONY: docker-build
 

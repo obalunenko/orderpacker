@@ -13,7 +13,7 @@ RUN apk add --no-cache \
 	"make=${APK_MAKE_VERSION}" \
 	"build-base=${APK_BUILDBASE_VERSION}"
 
-COPY ../.. .
+COPY . .
 
 RUN make build
 
