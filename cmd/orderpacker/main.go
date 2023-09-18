@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"syscall"
 
 	log "github.com/obalunenko/logger"
 
@@ -54,7 +55,7 @@ func main() {
 
 	defer cancel(nil)
 
-	signal.Notify(signals, os.Interrupt, os.Kill)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM)
 
 	go func() {
 		s := <-signals
