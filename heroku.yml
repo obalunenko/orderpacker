@@ -1,6 +1,6 @@
 build:
   docker:
-    service: build/docker/Dockerfile
+    service: Dockerfile
 
 run:
   web:
