@@ -10,7 +10,6 @@ import (
 	"os/signal"
 	"sync"
 
-	"github.com/obalunenko/getenv"
 	log "github.com/obalunenko/logger"
 
 	"github.com/obalunenko/orderpacker/internal/config"
@@ -18,20 +17,16 @@ import (
 	"github.com/obalunenko/orderpacker/internal/service"
 )
 
-const (
-	configPathEnv = "ORDERPACKER_CONFIG_PATH"
-)
-
 var errSignal = errors.New("received signal")
 
 func main() {
-	printVersion()
-
 	signals := make(chan os.Signal, 1)
 
 	l := log.FromContext(context.Background())
 
 	ctx := log.ContextWithLogger(context.Background(), l)
+
+	printVersion(ctx)
 
 	ctx, cancel := context.WithCancelCause(ctx)
 	defer func() {
@@ -67,32 +62,11 @@ func main() {
 		cancel(fmt.Errorf("%w: %s", errSignal, s.String()))
 	}()
 
-	var useDefaultConfig bool
-
-	cfgPath, err := getenv.Env[string](configPathEnv)
+	cfg, err := config.Load(ctx)
 	if err != nil {
-		if errors.Is(err, getenv.ErrNotSet) {
-			log.WithField(ctx, "env", configPathEnv).Warn("Config path env not set")
+		cancel(fmt.Errorf("failed to load config: %w", err))
 
-			useDefaultConfig = true
-		}
-	}
-
-	var cfg *config.Config
-
-	if !useDefaultConfig {
-		log.WithField(ctx, "path", cfgPath).Info("Using config")
-
-		cfg, err = config.Load(cfgPath)
-		if err != nil {
-			cancel(fmt.Errorf("failed to load config: %w", err))
-
-			return
-		}
-	} else {
-		log.Warn(ctx, "Using default config")
-
-		cfg = config.DefaultConfig()
+		return
 	}
 
 	l = log.Init(ctx, log.Params{

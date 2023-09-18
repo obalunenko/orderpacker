@@ -2,8 +2,11 @@ services:
   server:
     image: ${APP_NAME}:latest
     environment:
-        PORT: 8080
-        ORDERPACKER_CONFIG_PATH: ${ORDERPACKER_CONFIG_PATH:-}
+        PORT: "8080"
+        HOST: "0.0.0.0"
+        PACK_BOXES: "1,2,4,8,16"
+        LOG_LEVEL: "DEBUG"
+        LOG_FORMAT: "text"
     ports:
       - 8080:8080
     volumes:

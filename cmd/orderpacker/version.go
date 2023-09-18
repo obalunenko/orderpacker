@@ -1,15 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	log "log/slog"
 	"os"
 	"text/tabwriter"
 
+	log "github.com/obalunenko/logger"
 	"github.com/obalunenko/version"
 )
 
-func printVersion() {
+func printVersion(ctx context.Context) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.TabIndent)
 
 	_, err := fmt.Fprintf(w, `
@@ -32,13 +33,13 @@ func printVersion() {
 		version.GetBuildDate(),
 		version.GetGoVersion())
 	if err != nil {
-		log.Error("Print version error: %v", err)
+		log.WithError(ctx, err).Error("Failed to write version info")
 
 		return
 	}
 
 	if err = w.Flush(); err != nil {
-		log.Error("Flush error: %v", err)
+		log.WithError(ctx, err).Error("Failed to flush version info to stdout")
 
 		return
 	}
