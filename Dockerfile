@@ -17,7 +17,7 @@ COPY . .
 
 RUN make build
 
-FROM alpine:3.18 AS final
+FROM alpine:3.19 AS final
 
 ARG APK_CA_CERTIFICATES_VERSION=~20230506
 
