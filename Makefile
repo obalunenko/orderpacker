@@ -1,6 +1,8 @@
 APP_NAME?=orderpacker
 SHELL := env APP_NAME=$(APP_NAME) $(SHELL)
 
+GOVERSION:=1.22
+
 TEST_DISCARD_LOG?=false
 SHELL := env TEST_DISCARD_LOG=$(TEST_DISCARD_LOG) $(SHELL)
 
@@ -53,7 +55,7 @@ docker-build:
 	@echo "Done"
 .PHONY: docker-build
 
-docker-run:
+docker-run: docker-build
 	@echo "Running docker image..."
 	@docker compose -f compose.yaml up
 	@echo "Done"
@@ -84,3 +86,7 @@ check-releaser:
 new-version: vet test build
 	./scripts/release/new-version.sh
 .PHONY: new-release
+
+bump-go-version:
+	./scripts/bump-go.sh $(GOVERSION)
+.PHONY: bump-go-version
