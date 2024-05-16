@@ -33,7 +33,7 @@ test:
 	@echo "Done"
 .PHONY: test
 
-build:
+build: swagger
 	@echo "Building..."
 	@./scripts/build/app.sh
 	@echo "Done"
@@ -85,7 +85,7 @@ check-releaser:
 .PHONY: check-releaser
 
 ## Issue new release.
-new-version: vet test build
+new-version: vet test build docker-build
 	./scripts/release/new-version.sh
 .PHONY: new-release
 
