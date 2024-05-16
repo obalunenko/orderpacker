@@ -81,7 +81,7 @@ func faviconHandler() http.HandlerFunc {
 //	@Failure		400					{object}	HTTPError		"Invalid request data
 //	@Failure		405					{object}	HTTPError		"Method not allowed"
 //	@Failure		500					{object}	HTTPError		"Internal server error"
-//	@Router			/api/v1/pack [post]																																																																																																											[post]
+//	@Router			/api/v1/pack [post]																																																																																																																[post]
 func packHandler(p *packer.Packer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
