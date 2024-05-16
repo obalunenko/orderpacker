@@ -1,6 +1,8 @@
 APP_NAME?=orderpacker
 SHELL := env APP_NAME=$(APP_NAME) $(SHELL)
 
+BIN_DIR?=$(CURDIR)/bin
+
 GOVERSION:=1.22
 
 TEST_DISCARD_LOG?=false
@@ -87,6 +89,13 @@ new-version: vet test build
 	./scripts/release/new-version.sh
 .PHONY: new-release
 
+## Bump go version
 bump-go-version:
 	./scripts/bump-go.sh $(GOVERSION)
 .PHONY: bump-go-version
+
+## Generate swagger docs
+swagger:
+	./scripts/swagger-docs.sh
+.PHONY: swagger
+

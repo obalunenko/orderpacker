@@ -12,6 +12,7 @@ import (
 	"syscall"
 
 	log "github.com/obalunenko/logger"
+	_ "github.com/swaggo/swag"
 
 	"github.com/obalunenko/orderpacker/internal/config"
 	"github.com/obalunenko/orderpacker/internal/packer"
@@ -20,6 +21,19 @@ import (
 
 var errSignal = errors.New("received signal")
 
+// @title						Order Packer API
+// @version					1.0
+// @description				This is a simple API for packing orders
+// @termsOfService				http://swagger.io/terms/
+// @contact.name				Oleg Balunenko
+// @contact.email				oleg.balunenko@gmail.com
+// @license.name				MIT
+// @license.url				https://opensource.org/license/mit
+// @host						localhost:8080
+// @schemes					http
+//
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
 	signals := make(chan os.Signal, 1)
 
