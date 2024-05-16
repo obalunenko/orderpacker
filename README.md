@@ -50,12 +50,12 @@ The application responds with a JSON payload with the following structure:
 }
 ```
 
-It primarily runs on `localhost` port `8080` and acts upon `POST` requests to the `/pack` endpoint.
+It primarily runs on `localhost` port `8080` and acts upon `POST` requests to the `api/v1/pack` endpoint.
 
 Below is a Curl command snippet demonstrating how to call this endpoint
 
 ```bash
-curl --location --request POST 'localhost:8080/api/v1pack' \
+curl --location --request POST 'localhost:8080/api/v1/pack' \
 --header 'Content-Type: application/json' \
 --data '{
     "items": 501
@@ -81,7 +81,7 @@ Following environment variables are supported:
 
 ### Prerequisites
 
-- [Go](https://golang.org/doc/install) 1.21 or higher
+- [Go](https://golang.org/doc/install) 1.22 or higher
 - [Docker](https://docs.docker.com/get-docker/) 24.0 or higher
 - [Docker Compose](https://docs.docker.com/compose/install/) 2.21 or higher
 
@@ -110,7 +110,7 @@ make test
 To run tests without logs, use the following command:
 
 ```bash
-TEST_DISCARD_LOGS=true make test
+make TEST_DISCARD_LOG=true test
 ```
 
 ### Linting
