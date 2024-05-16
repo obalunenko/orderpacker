@@ -33,7 +33,7 @@ test:
 	@echo "Done"
 .PHONY: test
 
-build: swagger
+build: swagger-gen
 	@echo "Building..."
 	@./scripts/build/app.sh
 	@echo "Done"
