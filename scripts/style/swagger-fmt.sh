@@ -18,8 +18,9 @@ echo "Version: $version"
 echo "Installing github.com/swaggo/swag/cmd/swag@$version"
 go install github.com/swaggo/swag/cmd/swag@$version
 
-echo "Generating swagger docs"
+echo "Formatting annotations"
 
-swag init --dir ./cmd/orderpacker,./internal/service --parseDependency --output ${DOCS_DIR}
+swag fmt --dir ./cmd/orderpacker,./internal/service
+
 
 echo "${SCRIPT_NAME} is done."
