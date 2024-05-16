@@ -8,7 +8,7 @@ GOVERSION:=1.22
 TEST_DISCARD_LOG?=false
 SHELL := env TEST_DISCARD_LOG=$(TEST_DISCARD_LOG) $(SHELL)
 
-format-code: fmt goimports
+format-code: swagger-fmt fmt goimports
 .PHONY: format-code
 
 fmt:
@@ -95,7 +95,12 @@ bump-go-version:
 .PHONY: bump-go-version
 
 ## Generate swagger docs
-swagger:
+swagger-gen:
 	./scripts/swagger-docs.sh
-.PHONY: swagger
+.PHONY: swagger-gen
+
+## Format swagger annotations
+swagger-fmt:
+	./scripts/style/swagger-fmt.sh
+.PHONY: swagger-fmt
 
