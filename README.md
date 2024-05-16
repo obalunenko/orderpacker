@@ -55,7 +55,7 @@ It primarily runs on `localhost` port `8080` and acts upon `POST` requests to th
 Below is a Curl command snippet demonstrating how to call this endpoint
 
 ```bash
-curl --location --request POST 'localhost:8080/pack' \
+curl --location --request POST 'localhost:8080/api/v1pack' \
 --header 'Content-Type: application/json' \
 --data '{
     "items": 501
