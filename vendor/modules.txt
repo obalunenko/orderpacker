@@ -28,8 +28,8 @@ github.com/josharian/intern
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
-# github.com/obalunenko/getenv v1.13.0
-## explicit; go 1.22
+# github.com/obalunenko/getenv v1.14.0
+## explicit; go 1.23
 github.com/obalunenko/getenv
 github.com/obalunenko/getenv/internal
 github.com/obalunenko/getenv/option
