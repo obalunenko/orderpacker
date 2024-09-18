@@ -18,7 +18,7 @@ RUN make build
 
 FROM alpine:3.20 AS final
 
-ARG APK_CA_CERTIFICATES_VERSION=~20240226
+ARG APK_CA_CERTIFICATES_VERSION=~20240705
 
 RUN apk add --no-cache \
         "ca-certificates=${APK_CA_CERTIFICATES_VERSION}"
