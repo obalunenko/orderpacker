@@ -96,3 +96,40 @@ jobs:
         shell: bash
 
 
+  check-releaser:
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        os: [ 'ubuntu-22.04' ]
+        go-version: [1.23.x]
+    runs-on: ${{ matrix.os }}
+    name: Check Releaser
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up go
+        uses: actions/setup-go@v5.0.2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - run: |
+          go version
+        shell: bash
+
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: ~> v2
+          install-only: true
+
+      - name: Check release config
+        run: |
+          make check-releaser
+        shell: bash
+
+
