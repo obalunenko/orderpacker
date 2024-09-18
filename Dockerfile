@@ -1,5 +1,4 @@
-ARG GO_VERSION=1.22
-FROM golang:${GO_VERSION}-alpine AS build
+FROM golang:1.23.1-alpine3.20 AS build
 WORKDIR /src
 
 ARG APK_BASH_VERSION=~5

@@ -1,13 +1,4 @@
 definitions:
-  service.HTTPError:
-    properties:
-      code:
-        example: 400
-        type: integer
-      message:
-        example: Bad request
-        type: string
-    type: object
   service.Pack:
     properties:
       box:
@@ -33,6 +24,33 @@ definitions:
           $ref: '#/definitions/service.Pack'
         type: array
     type: object
+  service.badRequestError:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: Bad request
+        type: string
+    type: object
+  service.internalServerError:
+    properties:
+      code:
+        example: 500
+        type: integer
+      message:
+        example: Internal server error
+        type: string
+    type: object
+  service.methodNotAllowedError:
+    properties:
+      code:
+        example: 405
+        type: integer
+      message:
+        example: Method not allowed
+        type: string
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -54,7 +72,7 @@ paths:
       consumes:
       - application/json
       description: Calculates the number of packs needed to ship to a customer
-      operationId: "orderpacker-pack \t\t\t\t\t\tpost"
+      operationId: "orderpacker-pack\tpost"
       parameters:
       - description: Request data
         in: body
@@ -72,15 +90,15 @@ paths:
         "400":
           description: Invalid request data
           schema:
-            $ref: '#/definitions/service.HTTPError'
+            $ref: '#/definitions/service.badRequestError'
         "405":
           description: Method not allowed
           schema:
-            $ref: '#/definitions/service.HTTPError'
+            $ref: '#/definitions/service.methodNotAllowedError'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/service.HTTPError'
+            $ref: '#/definitions/service.internalServerError'
       summary: Get the number of packs needed to ship to a customer
       tags:
       - pack

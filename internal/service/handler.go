@@ -73,15 +73,15 @@ func faviconHandler() http.HandlerFunc {
 //	@Summary		Get the number of packs needed to ship to a customer
 //	@Tags			pack
 //	@Description	Calculates the number of packs needed to ship to a customer
-//	@ID				orderpacker-pack 						post
+//	@ID				orderpacker-pack	post
 //	@Accept			json
 //	@Produce		json
-//	@Param			data				body		PackRequest		true	"Request data"
-//	@Success		200					{object}	PackResponse	"Successful response with packs data"
-//	@Failure		400					{object}	HTTPError		"Invalid request data
-//	@Failure		405					{object}	HTTPError		"Method not allowed"
-//	@Failure		500					{object}	HTTPError		"Internal server error"
-//	@Router			/api/v1/pack [post]																																																																																																																					[post]
+//	@Param			data	body		PackRequest				true	"Request data"
+//	@Success		200		{object}	PackResponse			"Successful response with packs data"
+//	@Failure		400		{object}	badRequestError			"Invalid request data
+//	@Failure		405		{object}	methodNotAllowedError	"Method not allowed"
+//	@Failure		500		{object}	internalServerError		"Internal server error"
+//	@Router			/api/v1/pack [post]
 func packHandler(p *packer.Packer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -170,10 +170,7 @@ func makeResponse(ctx context.Context, w http.ResponseWriter, code int, resp Pac
 	if err != nil {
 		log.WithError(ctx, err).Error("Error processing request")
 
-		response = HTTPError{
-			Code:    code,
-			Message: err.Error(),
-		}
+		response = newHTTPError(ctx, code, err.Error())
 	}
 
 	if err = json.NewEncoder(w).Encode(response); err != nil {

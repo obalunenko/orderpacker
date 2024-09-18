@@ -1,0 +1,113 @@
+openapi: 3.0.1
+info:
+  title: Order Packer API
+  description: This is a simple API for packing orders
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Oleg Balunenko
+    email: oleg.balunenko@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  version: "1.0"
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+servers:
+  - url: http://localhost:8080/
+paths:
+  /api/v1/pack:
+    post:
+      tags:
+        - pack
+      summary: Get the number of packs needed to ship to a customer
+      description: Calculates the number of packs needed to ship to a customer
+      operationId: "orderpacker-pack\tpost"
+      requestBody:
+        description: Request data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/service.PackRequest'
+        required: true
+      responses:
+        "200":
+          description: Successful response with packs data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/service.PackResponse'
+        "400":
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/service.badRequestError'
+        "405":
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/service.methodNotAllowedError'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/service.internalServerError'
+      x-codegen-request-body-name: data
+components:
+  schemas:
+    service.Pack:
+      type: object
+      properties:
+        box:
+          type: integer
+          format: uint
+          example: 50
+        quantity:
+          type: integer
+          format: uint
+          example: 3
+    service.PackRequest:
+      type: object
+      properties:
+        items:
+          type: integer
+          format: uint
+          example: 543
+    service.PackResponse:
+      type: object
+      properties:
+        packs:
+          type: array
+          items:
+            $ref: '#/components/schemas/service.Pack'
+    service.badRequestError:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: Bad request
+    service.internalServerError:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 500
+        message:
+          type: string
+          example: Internal server error
+    service.methodNotAllowedError:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 405
+        message:
+          type: string
+          example: Method not allowed
+x-original-swagger-version: "2.0"

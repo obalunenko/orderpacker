@@ -36,7 +36,7 @@ const docTemplate = `{
                     "pack"
                 ],
                 "summary": "Get the number of packs needed to ship to a customer",
-                "operationId": "orderpacker-pack \t\t\t\t\t\tpost",
+                "operationId": "orderpacker-pack\tpost",
                 "parameters": [
                     {
                         "description": "Request data",
@@ -58,19 +58,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request data",
                         "schema": {
-                            "$ref": "#/definitions/service.HTTPError"
+                            "$ref": "#/definitions/service.badRequestError"
                         }
                     },
                     "405": {
                         "description": "Method not allowed",
                         "schema": {
-                            "$ref": "#/definitions/service.HTTPError"
+                            "$ref": "#/definitions/service.methodNotAllowedError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/service.HTTPError"
+                            "$ref": "#/definitions/service.internalServerError"
                         }
                     }
                 }
@@ -78,19 +78,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "service.HTTPError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Bad request"
-                }
-            }
-        },
         "service.Pack": {
             "type": "object",
             "properties": {
@@ -124,6 +111,45 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/service.Pack"
                     }
+                }
+            }
+        },
+        "service.badRequestError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Bad request"
+                }
+            }
+        },
+        "service.internalServerError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Internal server error"
+                }
+            }
+        },
+        "service.methodNotAllowedError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 405
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Method not allowed"
                 }
             }
         }
