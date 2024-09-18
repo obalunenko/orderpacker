@@ -1,5 +1,4 @@
-ARG GO_VERSION=1.22
-FROM golang:${GO_VERSION}-alpine AS build
+FROM golang:1.23.1-alpine3.20 AS build
 WORKDIR /src
 
 ARG APK_BASH_VERSION=~5
@@ -19,7 +18,7 @@ RUN make build
 
 FROM alpine:3.20 AS final
 
-ARG APK_CA_CERTIFICATES_VERSION=~20240226
+ARG APK_CA_CERTIFICATES_VERSION=~20240705
 
 RUN apk add --no-cache \
         "ca-certificates=${APK_CA_CERTIFICATES_VERSION}"
