@@ -8,7 +8,7 @@ require (
 	github.com/obalunenko/logger v1.2.0
 	github.com/obalunenko/version v1.2.0
 	github.com/stretchr/testify v1.9.0
-	github.com/swaggo/swag v1.16.3
+	github.com/swaggo/swag v1.16.4
 )
 
 require (
